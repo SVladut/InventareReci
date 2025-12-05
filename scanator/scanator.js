@@ -228,15 +228,17 @@ function afiseazaIstoric() {
 // =========================
 // EVENT: SCANARE PE ENTER
 // =========================
-scanInput.addEventListener("keypress", function (e) {
-    if (e.key !== "Enter") return;
+scanInput.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter") return;  // rulăm doar la ENTER
 
     const text = this.value.trim();
-    this.value = "";
+    this.value = "";  // curățăm inputul imediat
 
     if (!text) return;
 
-    // 1. Dacă e zonă
+    // =====================================================
+    // 1. Dacă este cod de zonă (ex: --A001)
+    // =====================================================
     if (text.startsWith("--") && text.length >= 4) {
         localStorage.setItem("zonaCurenta", text);
         updateZonaDisplay();
@@ -246,38 +248,50 @@ scanInput.addEventListener("keypress", function (e) {
         return;
     }
 
-    // 2. Trebuie să avem o zonă
+    // =====================================================
+    // 2. Dacă nu există zonă -> nu permitem scanare produs
+    // =====================================================
     if (!localStorage.getItem("zonaCurenta")) {
         alert("Trebuie să scanați mai întâi o zonă (ex: --A001)");
         return;
     }
 
+    // =====================================================
+    // 3. Detectăm modul de scanare
+    // =====================================================
     const mode = scanModeSelect.value;
 
-    // Mod individual
+    // =====================================================
+    // MOD INDIVIDUAL → adaugă 1
+    // =====================================================
     if (mode === "individual") {
         salveazaProdus(text, 1);
         return;
     }
 
-    // Mod multiplu
-if (mode === "multiplu") {
-    let cant = prompt("Introduceți cantitatea pentru codul: " + text + "\n(Puteți folosi valori negative)");
+    // =====================================================
+    // MOD MULTIPLU → cerem cantitate (poate fi negativă)
+    // =====================================================
+    if (mode === "multiplu") {
+        let cant = prompt(
+            "Introduceți cantitatea pentru codul: " + text + 
+            "\n(Puteți folosi și valori negative)"
+        );
 
-    if (cant === null) return;
+        if (cant === null) return; // dacă apasă Cancel
 
-    cant = parseInt(cant);
+        cant = parseInt(cant);
 
-    // ACCEPTĂM NEGATIVE, DOAR 0 ESTE INTERZIS
-    if (isNaN(cant) ) {
-        alert("Cantitate invalidă!");
-        return;
+        // validăm doar că este număr întreg (negativ sau pozitiv)
+        if (isNaN(cant)) {
+            alert("Cantitate invalidă!");
+            return;
+        }
+
+        salveazaProdus(text, cant);
     }
-
-    salveazaProdus(text, cant);
-}
-
 });
+
 
 // =========================
 // PAGINARE
