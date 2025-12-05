@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Scanator - Inventar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSS general (dacă ai deja) -->
+    <link rel="stylesheet" href="style.css">
+    <!-- CSS specific scanator -->
+    <link rel="stylesheet" href="scanator/scanator.css">
+</head>
+<body>
+
+<div class="dashboard">
+
+    <header class="dashboard-header">
+        <div>
+            <h1 class="app-title">ReciSRL</h1>
+            <p id="userDisplay" class="user-info"></p>
+        </div>
+        <div class="zona-chip" id="zonaStatus">Zona: neselectată</div>
+    <button id="clearZoneBtn" class="btn-secondary small-btn" type="button">
+    Ieși din zonă
+</button>
+
+    </header>
+
+    <section class="card">
+        <p className="info-line">
+            Scanați o zonă (ex: <strong>--A001</strong>) apoi scanați produsele.
+        </p>
+
+        <!-- UN SINGUR INPUT -->
+        <input
+            type="text"
+            id="scanInput"
+            class="big-input"
+            autocomplete="off"
+            placeholder="Scanați zona sau produsul"
+        >
+
+        <div class="field-group">
+            <label for="scanMode">Mod scanare</label>
+            <select id="scanMode" class="select">
+                <option value="individual">Individual (1 bucată)</option>
+                <option value="multiplu">Multiplu (cod + cantitate)</option>
+            </select>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="card-header">
+            <h2 class="section-title">Istoric scanări</h2>
+            <div class="field-group inline">
+                <label for="viewMode">Mod afișare</label>
+                <select id="viewMode" class="select small">
+                    <option value="normal">Ordine scanare</option>
+                    <option value="cumulat">Cumulat după cod</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table id="istoricTable">
+                <thead>
+                    <tr>
+                        <th>Cod</th>
+                        <th>Denumire</th>
+                        <th>Cant.</th>
+                    </tr>
+                </thead>
+                <tbody id="istoricBody">
+                    <!-- Se completează automat prin JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="pagination" class="pagination">
+            <button id="prevPage" class="btn-secondary" type="button">◀</button>
+            <span id="pageInfo" class="page-info"></span>
+            <button id="nextPage" class="btn-secondary" type="button">▶</button>
+        </div>
+    </section>
+
+    <button id="logoutBtn" class="btn-primary logout-btn" type="button">
+        Logout
+    </button>
+</div>
+
+<script src="scanator/scanator.js"></script>
+</body>
+</html>

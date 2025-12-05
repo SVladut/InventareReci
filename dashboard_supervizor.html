@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>Dashboard Supervizor</title>
+</head>
+<body>
+
+<div class="dashboard">
+    <h2>Supervizor - Panou Administrare</h2>
+    <p id="userDisplay"></p>
+
+    <ul>
+        <li>✔️ Rapoarte</li>
+        <li>✔️ Vizualizare stocuri</li>
+        <li>✔️ Export CSV / PDF</li>
+        <li>✔️ Management utilizatori</li>
+        <li>✔️ Istoric scanări</li>
+    </ul>
+
+    <button id="logoutBtn" class="btn-primary">Logout</button>
+</div>
+
+<script>
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    const token = localStorage.getItem("authToken");
+
+    if (!token || !user || user.rol !== "supervizor") {
+        window.location.href = "index.html";
+    }
+
+    document.getElementById("userDisplay").textContent = "Conectat ca: " + user.nume;
+
+    document.getElementById("logoutBtn").onclick = () => {
+        localStorage.clear();
+        window.location.href = "index.html";
+    };
+</script>
+
+</body>
+</html>

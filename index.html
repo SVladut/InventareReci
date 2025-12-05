@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Inventar</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="login-container">
+    <div class="login-header">
+        <h1>Inventar</h1>
+        <p>Autentificare</p>
+    </div>
+
+    <form id="loginForm">
+        <div class="form-group">
+            <label for="nume">Nume utilizator</label>
+            <input type="text" id="nume" required>
+        </div>
+
+        <div class="form-group">
+            <label for="parola">Parola</label>
+            <input type="password" id="parola" required>
+        </div>
+
+        <button type="submit" class="btn-primary">Conectare</button>
+        <div id="errorMsg" class="error-msg"></div>
+    </form>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

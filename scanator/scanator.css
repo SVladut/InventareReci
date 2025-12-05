@@ -1,0 +1,270 @@
+/* Layout de bază */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #0f172a; /* navy very dark */
+    color: #0f172a;
+}
+
+.dashboard {
+    min-height: 100vh;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Header */
+.dashboard-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    color: #e5e7eb;
+}
+
+.app-title {
+    font-size: 1.4rem;
+    margin: 0 0 4px;
+}
+
+.user-info {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #9ca3af;
+}
+
+.zona-chip {
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.6);
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+/* Carduri */
+.card {
+    background: #f9fafb;
+    border-radius: 16px;
+    padding: 16px 14px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.35);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.section-title {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+/* Info text */
+.info-line {
+    margin: 0 0 12px;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+/* Input mare pentru scanare */
+.big-input {
+    width: 100%;
+    padding: 14px 12px;
+    font-size: 1.2rem;
+    border-radius: 12px;
+    border: 1px solid #d1d5db;
+    outline: none;
+    text-align: center;
+    background: #ffffff;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.07s;
+}
+
+.big-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    transform: translateY(-1px);
+}
+
+/* Form fields */
+.field-group {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.9rem;
+}
+
+.field-group.inline {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.field-group.inline label {
+    margin-right: 6px;
+}
+
+label {
+    color: #4b5563;
+    font-size: 0.85rem;
+}
+
+/* Select */
+.select {
+    padding: 8px 10px;
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.select.small {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+}
+
+/* Tabel */
+.table-wrapper {
+    width: 100%;
+    margin-top: 10px;
+    overflow-x: auto;
+}
+
+#istoricTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+#istoricTable thead {
+    background: #111827;
+    color: #e5e7eb;
+}
+
+#istoricTable th,
+#istoricTable td {
+    padding: 8px 6px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+#istoricTable tbody tr:nth-child(even) {
+    background: #f3f4f6;
+}
+
+#istoricTable tbody tr:hover {
+    background: #e5e7eb;
+}
+
+/* Pagination */
+.pagination {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.page-info {
+    font-size: 0.85rem;
+    color: #4b5563;
+}
+
+/* Buttons */
+.btn-primary,
+.btn-secondary {
+    border: none;
+    cursor: pointer;
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.15s, transform 0.07s, box-shadow 0.15s;
+}
+
+.btn-primary {
+    background: #3b82f6;
+    color: #f9fafb;
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
+}
+
+.btn-primary:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #e5e7eb;
+    color: #111827;
+    padding-inline: 12px;
+}
+
+.btn-secondary:hover {
+    background: #d1d5db;
+    transform: translateY(-1px);
+}
+
+.logout-btn {
+    margin-top: auto;
+    align-self: center;
+    width: 100%;
+    max-width: 260px;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+    .dashboard {
+        padding: 24px;
+        max-width: 800px;
+    }
+
+    .app-title {
+        font-size: 1.6rem;
+    }
+
+    #istoricTable th,
+    #istoricTable td {
+        padding: 8px 10px;
+    }
+}
+
+
+.small-btn {
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    margin-top: 4px;
+    background: #f3f4f6;
+    color: #111827;
+    border-radius: 999px;
+    border: 1px solid #d1d5db;
+    transition: background 0.15s;
+}
+
+.small-btn:hover {
+    background: #e5e7eb;
+    transform: translateY(-1px);
+}
+
+
+.qty-cell {
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+    text-align: left;
+    padding-right: 6px;
+    white-space: nowrap;
+}
+
+
+#istoricTable {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+}
