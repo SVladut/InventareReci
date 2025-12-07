@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deschide Google Maps</title>
+</head>
+<body style="font-family: sans-serif; text-align: center; margin-top: 50px;">
+
+  <h2>Deschide locația mea în Google Maps 🚶‍♂️</h2>
+
+  <button id="btnLocatie" style="padding: 10px 20px; font-size: 16px;">
+    Mergi pe jos la locația mea
+  </button>
+
+  <script>
+    const buton = document.getElementById('btnLocatie');
+
+    buton.addEventListener('click', () => {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (pozitie) => {
+            const lat = pozitie.coords.latitude;
+            const lon = pozitie.coords.longitude;
+            console.log("Latitudine:", lat);
+            console.log("Longitudine:", lon);
+
+            // Deschide Google Maps cu direcții "walking" către acea locație
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=walking`;
+            window.location.href = url;
+          },
+          (eroare) => {
+            console.error("Eroare la obținerea locației:", eroare.message);
+            alert("Nu s-a putut obține locația: " + eroare.message);
+          }
+        );
+      } else {
+        alert("Geolocația nu este suportată în acest browser.");
+      }
+    });
+  </script>
+
+</body>
+</html>
