@@ -4,20 +4,26 @@
 const user = JSON.parse(localStorage.getItem("currentUser"));
 const token = localStorage.getItem("authToken");
 
-if (!token || !user || user.rol !== "scanator") {
+if (!token || !user || (user.tip !== "scanator" && user.tip !== "supervizor")) {
     window.location.href = "index.html";
 }
 
 document.getElementById("userDisplay").textContent =
     "Conectat ca: " + user.nume;
 
+
 // =========================
 // VARIABILE GLOBALE
 // =========================
 let nomenclator = [];
+let scanariCurente = [];
 let currentPage = 1;
+let listaAfisata = [];
 const itemsPerPage = 5;
-let listaAfisata = []; // lista finală (după filtrare + sortare)
+
+let currentArieId = localStorage.getItem("arieId")
+    ? parseInt(localStorage.getItem("arieId"))
+    : null;
 
 const zonaStatus = document.getElementById("zonaStatus");
 const scanInput = document.getElementById("scanInput");
@@ -30,6 +36,7 @@ const pageInfo = document.getElementById("pageInfo");
 const istoricBody = document.getElementById("istoricBody");
 const clearZoneBtn = document.getElementById("clearZoneBtn");
 
+
 // =========================
 // AFIȘARE ZONA CURENTĂ
 // =========================
@@ -37,258 +44,271 @@ function updateZonaDisplay() {
     const zona = localStorage.getItem("zonaCurenta");
     zonaStatus.textContent = "Zona: " + (zona || "neselectată");
 }
-
-// =========================
 updateZonaDisplay();
+
 
 // =========================
 // ÎNCĂRCARE NOMENCLATOR
 // =========================
-fetch("nomenclator.json")
+document.getElementById("loadingPopup").style.display = "flex";
+
+fetch("https://recisrlmicro.onrender.com/api/nomenclator/all")
     .then(r => r.json())
     .then(data => {
         nomenclator = data;
-        console.log("Nomenclator încărcat:", nomenclator);
+
+        document.getElementById("loadingPopup").style.display = "none";
+        const loadedMsg = document.getElementById("loadedMessage");
+        loadedMsg.style.display = "block";
+        setTimeout(() => (loadedMsg.style.display = "none"), 2000);
     })
     .catch(err => {
+        document.getElementById("loadingPopup").style.display = "none";
         alert("Eroare la încărcarea nomenclatorului!");
         console.error(err);
     });
 
+
 // =========================
-// SALVARE PRODUS
+// ÎNCĂRCARE SCANĂRI DIN DB
 // =========================
-function salveazaProdus(cod, cantitate) {
-    const zona = localStorage.getItem("zonaCurenta");
-
-    if (!zona) {
-        alert("Trebuie să scanați mai întâi o zonă (ex: --A001)");
+async function loadScanariPentruArie() {
+    if (!currentArieId) {
+        scanariCurente = [];
+        renderIstoric();
         return;
     }
 
-    if (!cod) {
-        alert("Introduceți codul produsului!");
-        return;
+    try {
+        const r = await fetch(`https://recisrlmicro.onrender.com/api/scanari/arie/${currentArieId}`);
+        scanariCurente = await r.json();
+    } catch (err) {
+        console.error(err);
+        alert("Eroare la încărcarea scanărilor din baza de date!");
+        scanariCurente = [];
     }
 
-        if (!/^\d{13}$/.test(cod)) {
-        alert("Cod de bare invalid! Trebuie să aibă EXACT 13 cifre.");
-        return;
-    }
-
-    // Validare cod nomenclator
-    const produs = nomenclator.find(p => p.cod === cod);
-
-    if (!produs) {
-        alert("Cod INVALID sau INEXISTENT în nomenclator: " + cod);
-        return;
-    }
-
-    // ================================
-    // CALCUL CANTITATE EXISTENTĂ
-    // ================================
-    let inventar = JSON.parse(localStorage.getItem("inventarLocal")) || [];
-
-    // filtrăm toate intrările pentru acest cod în zona curentă
-    let existente = inventar.filter(
-        (x) => x.zona === zona && x.cod === cod
-    );
-
-    // suma deja scanată
-    let cantitateExistenta = existente.reduce((sum, x) => sum + x.cantitate, 0);
-
-    // ================================
-    // VALIDARE CANTITATE NEGATIVĂ
-    // ================================
-    let nouTotal = cantitateExistenta + cantitate;
-
-    if (nouTotal < 0) {
-        alert(
-            `Eroare: cantitatea cumulată pe acest cod ar deveni ${nouTotal}.\n` +
-            `Nu puteți avea cantitate negativă!`
-        );
-        return;
-    }
-
-    // ================================
-    // SALVARE
-    // ================================
-    const intrare = {
-        zona,
-        cod,
-        denumire: produs.denumire,
-        cantitate,
-        data: new Date().toLocaleString()
-    };
-
-    inventar.push(intrare);
-    localStorage.setItem("inventarLocal", JSON.stringify(inventar));
-
-    // Refresh UI
-    currentPage = 1;
-    afiseazaIstoric();
+    renderIstoric();
 }
 
+
 // =========================
-// AFIȘARE ISTORIC + PAGINARE
+// RENDER ISTORIC + PAGINARE
 // =========================
-function afiseazaIstoric() {
+function renderIstoric() {
     const zona = localStorage.getItem("zonaCurenta");
     const viewMode = viewModeSelect.value;
 
     istoricBody.innerHTML = "";
     pageInfo.textContent = "";
 
-    if (!zona) {
-        istoricBody.innerHTML =
-            `<tr><td colspan="4" style="text-align:center;">Nicio zonă selectată</td></tr>`;
+    if (!zona || !currentArieId) {
+        istoricBody.innerHTML = `
+            <tr><td colspan="4" style="text-align:center;">Nicio zonă selectată</td></tr>`;
         return;
     }
 
-    let inventar = JSON.parse(localStorage.getItem("inventarLocal")) || [];
-    let filtrate = inventar.filter(i => i.zona === zona);
-
-    if (filtrate.length === 0) {
-        istoricBody.innerHTML =
-            `<tr><td colspan="4" style="text-align:center;">Nicio scanare în zona ${zona}</td></tr>`;
+    if (scanariCurente.length === 0) {
+        istoricBody.innerHTML = `
+            <tr><td colspan="4" style="text-align:center;">Nicio scanare în zona ${zona}</td></tr>`;
         return;
     }
 
-    // sortare desc după dată
-    filtrate.sort((a, b) => new Date(b.data) - new Date(a.data));
+    const sortate = [...scanariCurente].sort(
+        (a, b) => b.timestamp - a.timestamp
+    );
 
     if (viewMode === "normal") {
-        listaAfisata = filtrate;
-    } else if (viewMode === "cumulat") {
+        listaAfisata = sortate;
+    } else {
         const grupate = {};
-
-        filtrate.forEach(item => {
+        sortate.forEach(item => {
             if (!grupate[item.cod]) {
                 grupate[item.cod] = {
                     cod: item.cod,
                     denumire: item.denumire,
                     cantitate: 0,
-                    ultimaData: item.data
+                    ultimaData: item.timestamp
                 };
             }
 
             grupate[item.cod].cantitate += item.cantitate;
 
-            if (new Date(item.data) > new Date(grupate[item.cod].ultimaData)) {
-                grupate[item.cod].ultimaData = item.data;
+            if (item.timestamp > grupate[item.cod].ultimaData) {
+                grupate[item.cod].ultimaData = item.timestamp;
             }
         });
 
         listaAfisata = Object.values(grupate).sort(
-            (a, b) => new Date(b.ultimaData) - new Date(a.ultimaData)
+            (a, b) => b.ultimaData - a.ultimaData
         );
-    } else {
-        listaAfisata = filtrate;
     }
 
-    const totalItems = listaAfisata.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-    if (totalPages === 0) {
-        istoricBody.innerHTML =
-            `<tr><td colspan="4" style="text-align:center;">Nicio înregistrare</td></tr>`;
-        return;
-    }
+    const totalPages = Math.ceil(listaAfisata.length / itemsPerPage) || 1;
 
     if (currentPage > totalPages) currentPage = totalPages;
     if (currentPage < 1) currentPage = 1;
 
     const start = (currentPage - 1) * itemsPerPage;
     const end = start + itemsPerPage;
-    const paginaProduse = listaAfisata.slice(start, end);
 
-    paginaProduse.forEach(item => {
+    listaAfisata.slice(start, end).forEach(item => {
         const row = document.createElement("tr");
-
-        if (viewMode === "normal") {
-            row.innerHTML = `
-                <td>${item.cod}</td>
-                <td>${item.denumire}</td>
-                 <td class="qty-cell">${item.cantitate}</td>
-            `;
-        } else {
-            row.innerHTML = `
-                <td>${item.cod}</td>
-                <td>${item.denumire}</td>
-                 <td class="qty-cell">${item.cantitate}</td>
-            `;
-        }
-
+        row.innerHTML = `
+            <td>${item.cod}</td>
+            <td>${item.denumire}</td>
+            <td class="qty-cell">${item.cantitate}</td>
+        `;
         istoricBody.appendChild(row);
     });
 
     pageInfo.textContent = `Pagina ${currentPage} / ${totalPages}`;
 }
 
+
 // =========================
-// EVENT: SCANARE PE ENTER
+// VALIDARE ARIE
 // =========================
-scanInput.addEventListener("keydown", function (e) {
-    if (e.key !== "Enter") return;  // rulăm doar la ENTER
+async function seteazaZona(text) {
+    const codArie = text.replace("--", "");
 
-    const text = this.value.trim();
-    this.value = "";  // curățăm inputul imediat
+    try {
+        const r = await fetch(`https://recisrlmicro.onrender.com/api/arii/check/${codArie}`);
+        const data = await r.json();
 
-    if (!text) return;
+        if (data.status === "INVALID") return alert("⛔ Arie invalidă!");
+        if (data.status === "DEMAPATA") return alert("❌ Arie demapate!");
 
-    // =====================================================
-    // 1. Dacă este cod de zonă (ex: --A001)
-    // =====================================================
-    if (text.startsWith("--") && text.length >= 4) {
+        if (data.scanator && data.scanator !== user.nume) {
+            return alert(`⚠ Aria este începută deja de: ${data.scanator}`);
+        }
+
         localStorage.setItem("zonaCurenta", text);
+        localStorage.setItem("arieId", data.id);
+        currentArieId = data.id;
+
         updateZonaDisplay();
         currentPage = 1;
-        afiseazaIstoric();
-        alert("Zonă setată: " + text);
+
+        await loadScanariPentruArie();
+        alert("Zonă validată: " + text);
+
+    } catch (err) {
+        console.error(err);
+        alert("Eroare la validarea ariei.");
+    }
+}
+
+
+// =========================
+// SALVARE PRODUS ÎN BACKEND
+// =========================
+async function salveazaProdus(cod, cantitate) {
+    if (!currentArieId) {
+        alert("Trebuie să scanați mai întâi o zonă (ex: --100)");
         return;
     }
 
-    // =====================================================
-    // 2. Dacă nu există zonă -> nu permitem scanare produs
-    // =====================================================
-    if (!localStorage.getItem("zonaCurenta")) {
-        alert("Trebuie să scanați mai întâi o zonă (ex: --A001)");
+    if (!/^\d{13}$/.test(cod)) {
+        alert("Cod invalid! Trebuie EXACT 13 cifre.");
         return;
     }
 
-    // =====================================================
-    // 3. Detectăm modul de scanare
-    // =====================================================
-    const mode = scanModeSelect.value;
-
-    // =====================================================
-    // MOD INDIVIDUAL → adaugă 1
-    // =====================================================
-    if (mode === "individual") {
-        salveazaProdus(text, 1);
+    const produs = nomenclator.find(p => p.cod === cod);
+    if (!produs) {
+        alert("Cod INEXISTENT în nomenclator: " + cod);
         return;
     }
 
-    // =====================================================
-    // MOD MULTIPLU → cerem cantitate (poate fi negativă)
-    // =====================================================
-    if (mode === "multiplu") {
-        let cant = prompt(
-            "Introduceți cantitatea pentru codul: " + text + 
-            "\n(Puteți folosi și valori negative)"
-        );
+    // Cantitate existentă pe cod (din scanările curente)
+    const cantitateExistenta = scanariCurente
+        .filter(s => s.cod === cod)
+        .reduce((s, x) => s + x.cantitate, 0);
 
-        if (cant === null) return; // dacă apasă Cancel
+    if (cantitateExistenta + cantitate < 0) {
+        alert("Cantitatea cumulată nu poate deveni negativă!");
+        return;
+    }
 
-        cant = parseInt(cant);
+    // ================================
+    // 1️⃣ UPDATE INSTANT ÎN UI
+    // ================================
+    const fakeScan = {
+        cod: cod,
+        denumire: produs.denumire,
+        cantitate: cantitate,
+        timestamp: new Date().toISOString()
+    };
 
-        // validăm doar că este număr întreg (negativ sau pozitiv)
-        if (isNaN(cant)) {
-            alert("Cantitate invalidă!");
+    scanariCurente.unshift(fakeScan); // adaugă la început
+    renderIstoric();                  // actualizare imediată
+
+
+    // ================================
+    // 2️⃣ TRIMITEM REAL CĂTRE SERVER
+    // ================================
+    const payload = {
+        arieId: currentArieId,
+        cod: cod,
+        denumire: produs.denumire,
+        cantitate: cantitate,
+        userNume: user.nume
+    };
+
+    try {
+        const r = await fetch("https://recisrlmicro.onrender.com/api/scanari/add", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!r.ok) {
+            alert("Eroare la salvarea în server!");
+            // opțional: remove fake scan if server fails
             return;
         }
 
-        salveazaProdus(text, cant);
+        // ================================
+        // 3️⃣ SINCRONIZARE CU SERVER
+        // ================================
+        await loadScanariPentruArie();
+
+    } catch (err) {
+        console.error(err);
+        alert("Server offline sau eroare de rețea!");
+    }
+}
+
+
+// =========================
+// SCANARE PE ENTER
+// =========================
+scanInput.addEventListener("keydown", async function (e) {
+    if (e.key !== "Enter") return;
+
+    const text = scanInput.value.trim();
+    scanInput.value = "";
+
+    if (!text) return;
+
+    // scanare arie
+    if (text.startsWith("--")) return await seteazaZona(text);
+
+    if (!currentArieId) {
+        alert("Scanați o zonă înainte!");
+        return;
+    }
+
+    if (scanModeSelect.value === "individual") {
+        await salveazaProdus(text, 1);
+    } else {
+        let cant = prompt("Introduceți cantitatea:");
+        if (cant === null) return;
+        cant = parseInt(cant);
+
+        if (isNaN(cant)) return alert("Cantitate invalidă");
+
+        await salveazaProdus(text, cant);
     }
 });
 
@@ -299,56 +319,119 @@ scanInput.addEventListener("keydown", function (e) {
 prevPageBtn.addEventListener("click", () => {
     if (currentPage > 1) {
         currentPage--;
-        afiseazaIstoric();
+        renderIstoric();
     }
 });
 
 nextPageBtn.addEventListener("click", () => {
-    const totalPages = Math.ceil(listaAfisata.length / itemsPerPage);
+    const totalPages = Math.ceil(listaAfisata.length / itemsPerPage) || 1;
     if (currentPage < totalPages) {
         currentPage++;
-        afiseazaIstoric();
+        renderIstoric();
     }
 });
 
-// Schimbare mod afișare / scanare
 viewModeSelect.addEventListener("change", () => {
     currentPage = 1;
-    afiseazaIstoric();
+    renderIstoric();
 });
 
-scanModeSelect.addEventListener("change", () => {
-    // doar reafișăm, nu schimbă datele
-    afiseazaIstoric();
+
+// =========================
+// CLEAR ZONĂ
+// =========================
+clearZoneBtn.addEventListener("click", () => {
+    localStorage.removeItem("zonaCurenta");
+    localStorage.removeItem("arieId");
+
+    currentArieId = null;
+    scanariCurente = [];
+    currentPage = 1;
+
+    updateZonaDisplay();
+    renderIstoric();
+
+    scanInput.focus();
 });
+
 
 // =========================
 // LOGOUT
 // =========================
 logoutBtn.addEventListener("click", () => {
+    localStorage.clear();
     window.location.href = "index.html";
 });
+
 
 // =========================
 // INIT
 // =========================
-afiseazaIstoric();
-scanInput.focus();
+(async function init() {
+    if (currentArieId && localStorage.getItem("zonaCurenta")) {
+        await loadScanariPentruArie();
+    } else {
+        renderIstoric();
+    }
 
-
-
-// =========================
-// OUT ZONA
-// =========================
-clearZoneBtn.addEventListener("click", () => {
-    localStorage.removeItem("zonaCurenta");
-    updateZonaDisplay();
-    currentPage = 1;
-
-    // Resetăm tabelul la mesajul „Nicio zonă”
-    afiseazaIstoric();
-
-    // Focus pe input pentru a scana zona nouă
-    scanInput.value = "";
     scanInput.focus();
+})();
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const deleteBtn = document.getElementById("deleteAreaBtn");
+  const zonaStatus = document.getElementById("zonaStatus");
+  const istoricBody = document.getElementById("istoricBody");
+
+  deleteBtn.addEventListener("click", async () => {
+    const zonaText = zonaStatus.textContent.trim();
+    const zonaCurenta = zonaText.replace("Zona:", "").trim();
+
+    if (!zonaCurenta || zonaCurenta === "neselectată") {
+      alert("Nu este selectată nicio zonă.");
+      return;
+    }
+
+    // ✅ Ceri parola utilizatorului
+    const parola = prompt("Introdu parola pentru ștergere (cod 3919):");
+    if (parola === null) return; // utilizatorul a apăsat „Cancel”
+
+    if (parola.trim() !== "3919") {
+      alert("Parolă incorectă. Ștergerea a fost anulată.");
+      return;
+    }
+
+    // confirmare finală
+    const confirmare = confirm(`Sigur dorești să ștergi toate produsele din zona "${zonaCurenta}"?`);
+    if (!confirmare) return;
+
+    try {
+      document.getElementById("loadingPopup").style.display = "flex";
+
+      // 🔹 trimite parola la backend (pentru validare server-side)
+      const response = await fetch(`https://recisrlmicro.onrender.com/api/inventar/zone/${zonaCurenta}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ parola }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          alert("Parolă greșită! Nu s-a efectuat ștergerea.");
+        } else {
+          alert("Eroare la ștergerea produselor.");
+        }
+        return;
+      }
+
+      istoricBody.innerHTML = "";
+      zonaStatus.textContent = "Zona: neselectată";
+      alert(`Produsele din zona "${zonaCurenta}" au fost șterse.`);
+    } catch (err) {
+      console.error(err);
+      alert("A apărut o eroare la ștergere.");
+    } finally {
+      document.getElementById("loadingPopup").style.display = "none";
+    }
+  });
 });

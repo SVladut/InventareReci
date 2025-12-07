@@ -1,0 +1,509 @@
+/* ============================== */
+/* RESET + GLOBAL                 */
+/* ============================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #f5f6fa;
+    color: #2d3748;
+}
+
+/* Scrollbars fine */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb {
+    background: #b8c0cc;
+    border-radius: 10px;
+}
+
+
+/* ============================== */
+/* TOPBAR (HEADER FIX)            */
+/* ============================== */
+
+.topbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 58px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    z-index: 900;
+}
+
+.menu-toggle {
+    font-size: 26px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-right: 14px;
+}
+
+.topbar-title {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+
+/* ============================== */
+/* LAYOUT GENERAL                 */
+/* ============================== */
+
+.layout {
+    display: flex;
+    margin-top: 58px;
+    min-height: calc(100vh - 58px);
+}
+
+
+/* ============================== */
+/* SIDEBAR (DESKTOP + MOBILE)     */
+/* ============================== */
+
+.sidebar {
+    width: 260px;
+    background: #1e2533;
+    color: white;
+    padding: 20px;
+    position: fixed;
+    top: 58px;
+    bottom: 0;
+    left: 0;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    z-index: 999;
+}
+
+/* DESKTOP DEFAULT: sidebar vizibil */
+@media (min-width: 900px) {
+    .sidebar {
+        transform: translateX(0);
+    }
+}
+
+/* MOBILE DEFAULT: sidebar ascuns */
+@media (max-width: 900px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    .sidebar.show {
+        transform: translateX(0);
+    }
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* MENIU */
+.menu {
+    list-style: none;
+}
+
+.menu-btn {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 10px;
+    background: #2d3545;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 15px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.menu-btn:hover {
+    background: #3b4557;
+}
+
+/* ============================== */
+/* LOGOUT BUTTON                  */
+/* ============================== */
+
+.logout-btn {
+    width: 100%;
+    padding: 11px 16px;
+    background: #e74c3c;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.2s ease;
+}
+
+.logout-btn:hover {
+    background: #c0392b;
+}
+
+@media (max-width: 900px) {
+    .logout-btn {
+        padding: 14px;
+        font-size: 16px;
+        border-radius: 10px;
+    }
+}
+
+/* ============================== */
+/* CONTENT (RIGHT SIDE)           */
+/* ============================== */
+
+.content {
+    flex-grow: 1;
+    margin-left: 260px;
+    padding: 20px;
+}
+
+@media (max-width: 900px) {
+    .content {
+        margin-left: 0;
+        padding: 16px;
+    }
+}
+
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+
+/* ============================== */
+/* CARD (FORMURI, INPUTURI)       */
+/* ============================== */
+
+.card {
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 14px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.card label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.card input,
+.card select {
+    padding: 10px;
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.btn-primary {
+    grid-column: span 2;
+    background: #2563eb;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background: #1e4fd6;
+}
+
+@media (max-width: 600px) {
+    .card {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ============================== */
+/* FILTER CONTAINER               */
+/* ============================== */
+
+.filters {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0 15px;
+}
+
+.filters input,
+.filters select {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e0;
+    font-size: 14px;
+    flex: 1;
+}
+
+@media (max-width: 600px) {
+    .filters {
+        flex-direction: column;
+    }
+}
+
+
+/* ============================== */
+/* TABLES                         */
+/* ============================== */
+
+.table-container {
+    margin-top: 12px;
+    background: white;
+    padding: 12px;
+    border-radius: 14px;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+    overflow-x: auto;
+}
+
+.nice-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.nice-table th,
+.nice-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.nice-table th {
+    background: #f0f2f5;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.nice-table td {
+    font-size: 14px;
+}
+
+/* Status badges */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 12px;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-mapata { background: #16a34a; }
+.status-demapata { background: #e11d48; }
+.status-initial { background: #eab308; }
+.status-notok  { background: #f97316; }
+
+/* Responsive table font size */
+@media (max-width: 600px) {
+    .nice-table th, .nice-table td {
+        padding: 8px;
+        font-size: 12px;
+    }
+}
+
+
+/* ============================== */
+/* PAGINATION                     */
+/* ============================== */
+
+.pagination {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.page-btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
+}
+
+.page-btn:disabled {
+    background: #9ca3af;
+}
+
+/* ===== STATS GRID ===== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+    margin-bottom: 22px;
+}
+
+.stat-card {
+    background: white;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.stat-card h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #2563eb;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 15px;
+}
+
+/* PROGRESS BAR */
+.progress-bar {
+    margin-top: 12px;
+    width: 100%;
+    height: 12px;
+    background: #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #22c55e;
+    transition: width 0.5s ease;
+}
+
+/* ===== CHARTS ===== */
+.charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.chart-wrapper {
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.chart-wrapper h4 {
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* TELEFON OPTIMIZAT */
+@media (max-width: 600px) {
+    .stat-row span {
+        font-size: 14px;
+    }
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    .charts {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+#btnDemapare.btn-danger {
+  background-color: #dc3545;      /* roșu tip "danger" */
+  border: none;
+  color: #fff;
+  padding: 0.6rem 1.4rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 
+    background-color 0.2s ease,
+    transform 0.1s ease,
+    box-shadow 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+/* Hover - când treci cu mouse-ul peste el */
+#btnDemapare.btn-danger:hover {
+  background-color: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Click (active) */
+#btnDemapare.btn-danger:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* Când e dezactivat */
+#btnDemapare.btn-danger:disabled {
+  background-color: #e38a95;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+
+.page-size {
+  display: flex;
+  align-items: center;
+  gap: 8px;                     /* spațiu între label și select */
+  font-family: "Segoe UI", Roboto, sans-serif;
+  font-size: 0.95rem;
+  color: #333;
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  width: fit-content;           /* doar cât are nevoie */
+}
+
+/* Label-ul */
+.page-size label {
+  font-weight: 500;
+  color: #555;
+}
+
+/* Select-ul */
+.page-size select {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Hover și focus */
+.page-size select:hover {
+  border-color: #888;
+  background-color: #fff;
+}
+
+.page-size select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}

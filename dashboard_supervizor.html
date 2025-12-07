@@ -2,41 +2,286 @@
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="style.css">
-    <title>Dashboard Supervizor</title>
+    <title>Supervizor - Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="supervizor/supervizor.css">
 </head>
 <body>
 
-<div class="dashboard">
-    <h2>Supervizor - Panou Administrare</h2>
-    <p id="userDisplay"></p>
+<!-- HEADER -->
+<header class="topbar">
+    <button id="menuToggle" class="menu-toggle">☰</button>
+    <h1 class="topbar-title">ReciSRL - Supervizor</h1>
+</header>
 
-    <ul>
-        <li>✔️ Rapoarte</li>
-        <li>✔️ Vizualizare stocuri</li>
-        <li>✔️ Export CSV / PDF</li>
-        <li>✔️ Management utilizatori</li>
-        <li>✔️ Istoric scanări</li>
-    </ul>
+<div class="layout">
 
-    <button id="logoutBtn" class="btn-primary">Logout</button>
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar">
+        <h2 class="logo">ReciSRL</h2>
+
+        <ul class="menu">
+            <li><button class="menu-btn" data-page="inventariere">📦 Inventariere</button></li>
+            <li><button class="menu-btn" data-page="arie">📍 Detalii arie</button></li>
+            <li><button class="menu-btn" data-page="produs">🔍 Detalii produs</button></li>
+            <li><button class="menu-btn" data-page="stats">📊 Statistici</button></li>
+            <li><button class="menu-btn" data-page="mapare">🗂 Mapper arii</button></li>
+            <li><button class="menu-btn" data-page="demapare">🗑 Demapare arii</button></li>
+        </ul>
+
+       <button id="logoutBtn" class="logout-btn">Logout</button>
+
+    </aside>
+
+    <!-- CONȚINUT -->
+    <main class="content">
+
+        <section id="page-inventariere" class="page active">
+            <h2>Inventariere</h2>
+            <p>Aici vei avea opțiuni legate de gestionarea inventarului.</p>
+        </section>
+
+        <section id="page-arie" class="page">
+            <h2>Detalii arie</h2>
+    <div class="card">
+        <label>Scanează aria sau introdu manual:</label>
+        <input id="arieInput" type="text" placeholder="Ex: 1234 sau --1234">
+    </div>
+
+    <div id="arieInfo" class="card" style="display:none;">
+        <h3>Informații arie</h3>
+
+        <p><strong>Cod arie:</strong> <span id="dArieCod"></span></p>
+        <p><strong>Tip:</strong> <span id="dArieTip"></span></p>
+        <p><strong>Scanator:</strong> <span id="dArieScanator"></span></p>
+        <p><strong>Cantitate totală scanată:</strong> <span id="dArieTotalCant"></span></p>
+    </div>
+
+    <div id="arieListaScanari" class="card" style="display:none;">
+        <h3>Scanări pe această arie</h3>
+
+        <table class="nice-table">
+            <thead>
+                <tr>
+                    <th>Cod</th>
+                    <th>Denumire</th>
+                    <th>Cantitate</th>
+                </tr>
+            </thead>
+            <tbody id="arieScanariTable"></tbody>
+        </table>
+    </div>
+</section>
+
+        </section>
+
+    <section id="page-produs" class="page">
+    <h2>Detalii produs</h2>
+
+    <div class="card">
+        <label>Scanează produsul (EAN13):</label>
+        <input id="produsInput" type="text" placeholder="Scanează cod EAN13..." autofocus>
+    </div>
+
+    <div id="produsInfo" class="card" style="display:none;">
+        <h3>Informații produs</h3>
+        <p><strong>Cod:</strong> <span id="pCod"></span></p>
+        <p><strong>Denumire:</strong> <span id="pDenumire"></span></p>
+        <p><strong>Total inventariat:</strong> <span id="pTotal"></span></p>
+    </div>
+
+    <div id="produsListaScanari" class="card" style="display:none;">
+        <h3>Zone unde a fost inventariat</h3>
+
+        <table class="nice-table">
+            <thead>
+                <tr>
+                    <th>Zonă</th>
+                    <th>User</th>
+                    <th>Cantitate</th>
+                </tr>
+            </thead>
+            <tbody id="produsScanariTable"></tbody>
+        </table>
+
+        <div id="produsPagination" class="pagination-bar">
+            <button id="prodPrev" class="btn-primary">◀</button>
+            <span id="prodPageInfo">Pagina 1</span>
+            <button id="prodNext" class="btn-primary">▶</button>
+        </div>
+    </div>
+</section>
+
+
+        <section id="page-stats" class="page">
+        <h2>Statistici Inventariere</h2>
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <h3>Arii</h3>
+                <p><strong>Total:</strong> <span id="statTotalArii">-</span></p>
+                <p><strong>Scanate OK:</strong> <span id="statScanOk">-</span></p>
+                <p><strong>Inițiale:</strong> <span id="statInitiale">-</span></p>
+                <p><strong>Demapate:</strong> <span id="statDemapate">-</span></p>
+                <p><strong>Not OK:</strong> <span id="statNotOk">-</span></p>
+                <p><strong>% Scanate corect:</strong> <span id="statAriiScanatePct">-</span>%</p>
+                <p><strong>% Rămase de scanat:</strong> <span id="statAriiRamasePct">-</span>%</p>
+
+            </div>
+
+            <div class="stat-card">
+                <h3>Produse</h3>
+                <p><strong>Scanate:</strong> <span id="statProdScanate">-</span></p>
+                <p><strong>Estimat:</strong> <span id="statProdEstimate">-</span></p>
+                <p><strong>Progres:</strong> <span id="statProdProgress">-</span>%</p>
+            </div>
+
+        </div>
+
+     <div class="charts">
+    <div class="chart-wrapper">
+        <canvas id="pieArii"></canvas>
+    </div>
+    <div class="chart-wrapper">
+        <canvas id="barProduse"></canvas>
+    </div>
 </div>
 
-<script>
-    const user = JSON.parse(localStorage.getItem("currentUser"));
-    const token = localStorage.getItem("authToken");
+    </section>
 
-    if (!token || !user || user.rol !== "supervizor") {
-        window.location.href = "index.html";
-    }
 
-    document.getElementById("userDisplay").textContent = "Conectat ca: " + user.nume;
+        <section id="page-mapare" class="page">
+            <h2>Mapare arii</h2>
 
-    document.getElementById("logoutBtn").onclick = () => {
-        localStorage.clear();
-        window.location.href = "index.html";
-    };
-</script>
+            <div class="card">
+                <label>Cod început:</label>
+                <input type="number" id="codStart">
+
+                <label>Cod sfârșit:</label>
+                <input type="number" id="codEnd">
+
+                <label>Tip arie:</label>
+                <select id="tipArie">
+                    <option value="DEPOZIT">Depozit</option>
+                    <option value="MAGAZIN">Magazin</option>
+                </select>
+
+                <button id="btnAddArie" class="btn-primary">Generează arii</button>
+            </div>
+            <br>
+            <h3 class="section-title">Arii existente</h3>
+   
+            <div class="filters">
+    <input type="text" id="filterCod" placeholder="Caută cod...">
+
+    <select id="filterTip">
+        <option value="">Toate tipurile</option>
+        <option value="DEPOZIT">Depozit</option>
+        <option value="MAGAZIN">Magazin</option>
+    </select>
+
+    <select id="filterStatus">
+    <option value="">Toate stările</option>
+    <option value="MAPATA">Scanată</option>
+    <option value="DEMAPATA">Demapată</option>
+    <option value="INITIAL">Inițială</option>
+    <option value="NOTOK">Not OK</option>
+</select>
+
+</div>
+
+            <div class="table-container">
+                <table class="nice-table">
+                    <thead>
+                    <tr>
+                        <th>Cod</th>
+                        <th>Tip</th>
+                        <th>Scanator</th>
+                        <th>Cantitate</th>
+                        <th>Stare</th>
+                    </tr>
+                    </thead>
+                    <tbody id="ariiTable"></tbody>
+                </table>
+                <div class="pagination-bar">
+    
+<div class="page-size">
+  <label for="pageSize">Afișează:</label>
+  <select id="pageSize">
+    <option value="20">20</option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+    <option value="200">200</option>
+  </select>
+</div>
+
+
+    <div class="page-controls">
+        <button id="prevPage">◀</button>
+        <span id="pageInfo">Pagina 1</span>
+        <button id="nextPage">▶</button>
+    </div>
+
+</div>
+
+            </div>
+        </section>
+
+      <section id="page-demapare" class="page">
+    <h2>Demapare arii</h2>
+
+    <div class="card">
+        <label>Cod început:</label>
+        <input type="number" id="demStart">
+
+        <label>Cod sfârșit:</label>
+        <input type="number" id="demEnd">
+
+        <button id="btnDemapare" class="btn-danger">Demapează interval</button>
+    </div>
+
+    <h3 class="section-title">Arii demapate / Mixte</h3>
+
+    <div class="filters">
+        <input type="text" id="demFilterCod" placeholder="Caută cod...">
+        <select id="demFilterTip">
+            <option value="">Toate tipurile</option>
+            <option value="DEPOZIT">Depozit</option>
+            <option value="MAGAZIN">Magazin</option>
+        </select>
+        <select id="demFilterStatus">
+            <option value="">Toate stările</option>
+            <option value="DEMAPATA">Demapate</option>
+            <option value="NOTOK">Not OK</option>
+        </select>
+    </div>
+
+    <div class="table-container">
+        <table class="nice-table">
+            <thead>
+                <tr>
+                    <th>Cod</th>
+                    <th>Tip</th>
+                    <th>Scanator</th>
+                    <th>Cantitate</th>
+                    <th>Stare</th>
+                </tr>
+            </thead>
+            <tbody id="demapareTable"></tbody>
+        </table>
+    </div>
+</section>
+
+
+    </main>
+</div>
+
+<script src="supervizor/supervizor.js"></script>
+<script src="supervizor/detaliiprodus.js"></script>
+
 
 </body>
 </html>

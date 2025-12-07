@@ -4,30 +4,45 @@
     <meta charset="UTF-8">
     <title>Scanator - Inventar</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- CSS general (dacă ai deja) -->
+
+    <!-- CSS general -->
     <link rel="stylesheet" href="style.css">
+
     <!-- CSS specific scanator -->
     <link rel="stylesheet" href="scanator/scanator.css">
+
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
+
 <body>
 
 <div class="dashboard">
 
-    <header class="dashboard-header">
-        <div>
-            <h1 class="app-title">ReciSRL</h1>
-            <p id="userDisplay" class="user-info"></p>
-        </div>
-        <div class="zona-chip" id="zonaStatus">Zona: neselectată</div>
-    <button id="clearZoneBtn" class="btn-secondary small-btn" type="button">
-    Ieși din zonă
-</button>
+  <header class="dashboard-header">
+    <div>
+        <h1 class="app-title">ReciSRL</h1>
+        <p id="userDisplay" class="user-info"></p>
+    </div>
 
-    </header>
+    <div class="zona-chip" id="zonaStatus">Zona: neselectată</div>
+
+    <!-- Buton de ștergere aria -->
+    <button id="deleteAreaBtn" class="btn-delete" title="Șterge aria">🗑️</button>
+
+    <button id="clearZoneBtn" class="btn-secondary small-btn" type="button">
+        Ieși din zonă
+    </button>
+</header>
+
 
     <section class="card">
-        <p className="info-line">
-            Scanați o zonă (ex: <strong>--A001</strong>) apoi scanați produsele.
+        <p class="info-line">
+            Scanați o zonă (ex: <strong>--1001</strong>) apoi scanați produsele.
         </p>
 
         <!-- UN SINGUR INPUT -->
@@ -51,6 +66,7 @@
     <section class="card">
         <div class="card-header">
             <h2 class="section-title">Istoric scanări</h2>
+
             <div class="field-group inline">
                 <label for="viewMode">Mod afișare</label>
                 <select id="viewMode" class="select small">
@@ -69,8 +85,9 @@
                         <th>Cant.</th>
                     </tr>
                 </thead>
+
                 <tbody id="istoricBody">
-                    <!-- Se completează automat prin JS -->
+                    <!-- Completat din JS -->
                 </tbody>
             </table>
         </div>
@@ -81,12 +98,60 @@
             <button id="nextPage" class="btn-secondary" type="button">▶</button>
         </div>
     </section>
-
     <button id="logoutBtn" class="btn-primary logout-btn" type="button">
         Logout
     </button>
+
 </div>
 
+<!-- POPUP LOADING -->
+<div id="loadingPopup"
+     style="
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 22px;
+        z-index: 9999;
+     ">
+    <div style="text-align:center;">
+        <div class="spinner" style="
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: auto;">
+        </div>
+        <p>Se încarcă nomenclatorul...</p>
+    </div>
+</div>
+
+<!-- MESAJ DE SUCCES -->
+<div id="loadedMessage"
+     style="
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #27ae60;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-size: 18px;
+        display: none;
+        z-index: 9999;
+     ">
+    Nomenclator încărcat cu succes!
+</div>
+
+<!-- SCRIPT principal -->
 <script src="scanator/scanator.js"></script>
+
 </body>
 </html>

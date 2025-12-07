@@ -1,45 +1,39 @@
-// ==========================
-// LISTA DE UTILIZATORI MANUALI
-// ==========================
-// Aici adaugi/modifici utilizatori după cum vrei.
-// Exemplu:
-//    { nume: "admin", parola: "admin123" },
-
-const users = [
-    { nume: "admin", parola: "admin123", rol: "supervizor" },
-    { nume: "x", parola: "x", rol: "scanator" },
-];
-
-
-
-// ==========================
-// FUNCTIE LOGIN
-// ==========================
-document.getElementById("loginForm").addEventListener("submit", function (e) {
+document.getElementById("loginForm").addEventListener("submit", async function (e) {
     e.preventDefault();
 
     const username = document.getElementById("nume").value.trim();
     const password = document.getElementById("parola").value.trim();
     const errorMsg = document.getElementById("errorMsg");
 
-    const found = users.find(u => u.nume === username && u.parola === password);
+    try {
+        const response = await fetch("https://recisrlmicro.onrender.com/api/users/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nume: username, parola: password })
+        });
 
-    if (!found) {
-        errorMsg.textContent = "Utilizator sau parolă greșite.";
+        const data = await response.json();
+
+        if (data.error) {
+            errorMsg.textContent = data.error;
+            errorMsg.style.display = "block";
+            return;
+        }
+
+        // Salvăm token + user
+        localStorage.setItem("authToken", data.token);
+        localStorage.setItem("currentUser", JSON.stringify(data.user));
+
+        // redirect în funcție de rol
+        if (data.user.tip === "supervizor") {
+            window.location.href = "dashboard_supervizor.html";
+        } else {
+            window.location.href = "dashboard_scanator.html";
+        }
+
+    } catch (err) {
+        errorMsg.textContent = "Eroare de server!";
         errorMsg.style.display = "block";
-        return;
-    }
-
-    // generăm token
-    const token = crypto.randomUUID();
-
-    localStorage.setItem("authToken", token);
-    localStorage.setItem("currentUser", JSON.stringify(found));
-
-    // REDIRECT în funcție de rol
-    if (found.rol === "supervizor") {
-        window.location.href = "dashboard_supervizor.html";
-    } else {
-        window.location.href = "dashboard_scanator.html";
+        console.error(err);
     }
 });
