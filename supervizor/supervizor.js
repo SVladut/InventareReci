@@ -124,7 +124,7 @@ document.getElementById("btnAddArie").addEventListener("click", async () => {
     const payload = { start, end, tip };
 
     try {
-        const resp = await fetch("https://recisrlmicro.onrender.com/api/arii/add-interval", {
+        const resp = await fetch("http://localhost:8081/api/arii/add-interval", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(payload)
@@ -149,7 +149,7 @@ document.getElementById("btnAddArie").addEventListener("click", async () => {
 // ======================================================
 async function loadArii() {
     try {
-        const r = await fetch("https://recisrlmicro.onrender.com/api/arii");
+        const r = await fetch("http://localhost:8081/api/arii");
         ariiCache = await r.json();
 
         applyFilters();  // pentru pagina de mapare
@@ -294,7 +294,7 @@ document.getElementById("btnDemapare").addEventListener("click", async () => {
 
     const payload = { start, end };
 
-    const r = await fetch("https://recisrlmicro.onrender.com/api/arii/demapare", {
+    const r = await fetch("http://localhost:8081/api/arii/demapare", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -383,7 +383,7 @@ async function loadStats() {
     const estimatedTotal = Number(statsConfig.totalProduseEstimate) || 0;
 
     // 2️⃣ statistici reale din backend
-    const backendStats = await fetch("https://recisrlmicro.onrender.com/api/arii/stats")
+    const backendStats = await fetch("http://localhost:8081/api/arii/stats")
         .then(r => r.json());
 
     const {
@@ -580,7 +580,7 @@ arieInput.addEventListener("keydown", async (e) => {
 async function loadArieDetails(cod) {
     try {
         // 1️⃣ validăm aria
-        const checkResp = await fetch(`https://recisrlmicro.onrender.com/api/arii/check/${cod}`);
+        const checkResp = await fetch(`http://localhost:8081/api/arii/check/${cod}`);
         const arieData = await checkResp.json();
 
         if (arieData.status === "INVALID") {
@@ -591,7 +591,7 @@ async function loadArieDetails(cod) {
         const arieId = arieData.id;
 
         // 2️⃣ luăm toate ariile ca să aflăm tipul & detalii
-        const allArii = await fetch("https://recisrlmicro.onrender.com/api/arii").then(r => r.json());
+        const allArii = await fetch("http://localhost:8081/api/arii").then(r => r.json());
         const aria = allArii.find(a => a.id === arieId);
 
         if (!aria) {
@@ -608,7 +608,7 @@ async function loadArieDetails(cod) {
         document.getElementById("arieInfo").style.display = "block";
 
         // 3️⃣ luăm scanările grupate
-        const grouped = await fetch(`https://recisrlmicro.onrender.com/api/scanari/arie/${arieId}/grouped`)
+        const grouped = await fetch(`http://localhost:8081/api/scanari/arie/${arieId}/grouped`)
             .then(r => r.json());
 
         const tbody = document.getElementById("arieScanariTable");

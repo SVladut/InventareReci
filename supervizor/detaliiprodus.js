@@ -45,7 +45,7 @@ produsInput.addEventListener("keydown", async (e) => {
 async function loadProductDetails(cod) {
     try {
         // 1️⃣ verificăm în nomenclator
-        const check = await fetch(`https://recisrlmicro.onrender.com/api/nomenclator/${cod}`);
+        const check = await fetch(`http://localhost:8081/api/nomenclator/${cod}`);
         
         if (!check.ok) {
             alert("Cod inexistent în nomenclator!");
@@ -60,7 +60,7 @@ async function loadProductDetails(cod) {
 
 
         // 2️⃣ obținem toate scanările pentru produs
-        const scanResp = await fetch(`https://recisrlmicro.onrender.com/api/scanari/produs/${cod}`);
+        const scanResp = await fetch(`http://localhost:8081/api/scanari/produs/${cod}`);
         const scanari = await scanResp.json();
 
         if (scanari.length === 0) {
