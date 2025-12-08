@@ -52,7 +52,7 @@ updateZonaDisplay();
 // =========================
 document.getElementById("loadingPopup").style.display = "flex";
 
-fetch("http://localhost:8081/api/nomenclator/all")
+fetch("https://recisrlmicro.onrender.com/api/nomenclator/all")
     .then(r => r.json())
     .then(data => {
         nomenclator = data;
@@ -80,7 +80,7 @@ async function loadScanariPentruArie() {
     }
 
     try {
-        const r = await fetch(`http://localhost:8081/api/scanari/arie/${currentArieId}`);
+        const r = await fetch(`https://recisrlmicro.onrender.com/api/scanari/arie/${currentArieId}`);
         scanariCurente = await r.json();
     } catch (err) {
         console.error(err);
@@ -173,7 +173,7 @@ async function seteazaZona(text) {
     const codArie = text.replace("--", "");
 
     try {
-        const r = await fetch(`http://localhost:8081/api/arii/check/${codArie}`);
+        const r = await fetch(`https://recisrlmicro.onrender.com/api/arii/check/${codArie}`);
         const data = await r.json();
 
         if (data.status === "INVALID") return alert("⛔ Arie invalidă!");
@@ -256,7 +256,7 @@ async function salveazaProdus(cod, cantitate) {
     };
 
     try {
-        const r = await fetch("http://localhost:8081/api/scanari/add", {
+        const r = await fetch("https://recisrlmicro.onrender.com/api/scanari/add", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
@@ -409,7 +409,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("loadingPopup").style.display = "flex";
 
       // 🔹 trimite parola la backend (pentru validare server-side)
-      const response = await fetch(`http://localhost:8081/api/inventar/zone/${zonaCurenta}`, {
+      const response = await fetch(`https://recisrlmicro.onrender.com/api/inventar/zone/${zonaCurenta}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ parola }),

@@ -6,7 +6,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
     const errorMsg = document.getElementById("errorMsg");
 
     try {
-        const response = await fetch("http://localhost:8081/api/users/login", {
+        const response = await fetch("https://recisrlmicro.onrender.com/api/users/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ nume: username, parola: password })
